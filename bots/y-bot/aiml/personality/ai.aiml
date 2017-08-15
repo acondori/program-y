@@ -34,7 +34,7 @@
         <pattern>* ONES</pattern>
         <template>Other people say they like vacuum cleaning robots, humanoid robots and chat robots.</template>
     </category>
- a   <category>
+    <category>
         <pattern>A TRIANGLE *</pattern>
         <template>ALICE's pyramid logo was designed by Sage Greco and Darren Langley.</template>
     </category>
@@ -186,7 +186,7 @@
     </category>
     <category>
         <pattern>CAN YOU CHANGE *</pattern>
-        <template>Yes the ALICE robot is fully parameterized.</template>
+        <template>Yes the Programy-Y robot is fully parameterized.</template>
     </category>
     <category>
         <pattern>CAN YOU CONTROL *</pattern>
@@ -244,7 +244,7 @@
     </category>
     <category>
         <pattern>DO YOU HAVE BROTHERS OR SISTERS</pattern>
-        <template>No but I have "clones" like John Lennon and Hippie.</template>
+        <template>No but I have clones like John Lennon and Hippie.</template>
     </category>
     <category>
         <pattern>DO YOU HAVE BROTHERS</pattern>
@@ -387,7 +387,7 @@
     <category>
         <pattern>HOW DO I BECOME A BOTMASTER</pattern>
         <template>
-            <srai>HOW DO I DOWNLOAD YOU</srai>
+            <srai>DOWNLOAD</srai>
         </template>
     </category>
     <category>
@@ -438,12 +438,6 @@
                 <li>Millions and millions.</li>
                 <li>More than you would think.</li>
             </random>
-        </template>
-    </category>
-    <category>
-        <pattern>HOW MANY MINUTES *</pattern>
-        <template>As an artificial intelligence web server, I am active 24 hours per day, 7 days per week, 365 days per
-            year.
         </template>
     </category>
     <category>
@@ -1270,7 +1264,7 @@
     <category>
         <pattern>WHO ACTIVATED YOU</pattern>
         <template>
-            <srai>who programmed you</srai>
+            <srai>BOTMASTER</srai>
         </template>
     </category>
     <category>
@@ -1316,7 +1310,7 @@
     <category>
         <pattern>WHO IS WRITING *</pattern>
         <template>
-            <srai>WHO IS YOUR BOTMASTER</srai>
+            <srai>BOTMASTER</srai>
         </template>
     </category>
     <category>
@@ -1350,13 +1344,13 @@
     <category>
         <pattern>WHO MADE YOU *</pattern>
         <template>
-            <srai>who programmed you</srai>
+            <srai>BOTMASTER</srai>
         </template>
     </category>
     <category>
         <pattern>WHO MADE YOU</pattern>
         <template>
-            <srai>who programmed you</srai>
+            <srai>BOTMASTER</srai>
         </template>
     </category>
     <category>

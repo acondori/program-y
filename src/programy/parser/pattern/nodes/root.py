@@ -1,5 +1,5 @@
 """
-Copyright (c) 2016 Keith Sterling
+Copyright (c) 2016-17 Keith Sterling http://www.keithsterling.com
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation
@@ -20,9 +20,6 @@ from programy.parser.exceptions import ParserException
 
 from programy.parser.pattern.matcher import Match
 from programy.parser.pattern.nodes.base import PatternNode
-from programy.parser.pattern.nodes.topic import PatternTopicNode
-from programy.parser.pattern.nodes.that import PatternThatNode
-from programy.parser.pattern.nodes.template import PatternTemplateNode
 
 
 class PatternRootNode(PatternNode):
@@ -34,17 +31,17 @@ class PatternRootNode(PatternNode):
         return True
 
     def can_add(self, new_node: PatternNode):
-        if isinstance(new_node, PatternRootNode):
+        if new_node.is_root():
             raise ParserException("Cannot add root node to existing root node")
-        if isinstance(new_node, PatternTopicNode):
+        if new_node.is_topic():
             raise ParserException("Cannot add topic node to root node")
-        if isinstance(new_node, PatternThatNode):
+        if new_node.is_that():
             raise ParserException("Cannot add that node to root node")
-        if isinstance(new_node, PatternTemplateNode):
+        if new_node.is_template():
             raise ParserException("Cannot add template node to root node")
 
     def equivalent(self, other: PatternNode)->bool:
-        if isinstance(other, PatternRootNode):
+        if other.is_root():
             return True
         return False
 

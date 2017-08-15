@@ -1,5 +1,5 @@
 """
-Copyright (c) 2016 Keith Sterling
+Copyright (c) 2016-17 Keith Sterling http://www.keithsterling.com
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation
@@ -39,7 +39,7 @@ class PatternThatNode(PatternNode):
         return True
 
     def equivalent(self, other):
-        if isinstance(other, PatternThatNode):
+        if other.is_that():
             return True
         return False
 
@@ -51,9 +51,10 @@ class PatternThatNode(PatternNode):
 
     def consume(self, bot, clientid, context, words, word_no, type, depth):
 
-        tabs = TextUtils.get_tabs(word_no)
+        tabs = TextUtils.get_tabs(depth)
 
-        if depth > context.max_search_depth:
+        if context.search_depth_exceeded(depth) is True:
+        # if depth > context.max_search_depth:
             logging.error("%sMax search depth [%d]exceeded" % (tabs, context.max_search_depth))
             return None
 

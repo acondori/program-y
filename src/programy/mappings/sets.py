@@ -1,5 +1,5 @@
 """
-Copyright(c) 2016 Keith Sterling
+Copyright(c) 2016-17 Keith Sterling http://www.keithsterling.com
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 documentation files(the "Software"), to deal in the Software without restriction, including without limitation
@@ -22,6 +22,14 @@ class SetLoader(FileFinder):
     def __init__(self):
         FileFinder.__init__(self)
 
+    def sort_sets(self, the_set):
+        sorted_set = {}
+        for key in the_set.keys():
+            values = the_set[key]
+            sorted_values = sorted(values, key=len, reverse=True)
+            sorted_set[key] = sorted_values
+        return sorted_set
+
     def load_file_contents(self, filename):
         logging.debug("Loading set [%s]", filename)
         the_set = {}
@@ -31,36 +39,38 @@ class SetLoader(FileFinder):
                     self.process_line(line, the_set)
         except Exception as excep:
             logging.error("Failed to load set [%s] - %s", filename, excep)
-        return the_set
+        return self.sort_sets(the_set)
 
     def load_from_text(self, text):
         the_set = {}
         lines = text.split("\n")
         for line in lines:
             self.process_line(line, the_set)
-        return the_set
+        return self.sort_sets(the_set)
 
     def process_line(self, line, the_set):
         text = line.strip()
         if text is not None and len(text) > 0:
-            the_set[text.upper()] = text
-
+            splits = text.split()
+            key = splits[0].upper()
+            if key not in the_set:
+                the_set[key] = []
+            #for word in splits:
+            #    the_set[key].append(word.upper())
+            the_set[key].append(splits)
 
 class SetCollection(object):
 
     def __init__(self):
         self._sets = {}
 
-    def add_list_to_set(self, name, set_contents):
+    def add_set(self, name, the_set):
         # Set names always stored in upper case to handle ambiquity
         set_name = name.upper()
         if set_name in self._sets:
             raise Exception("Set %s already exists" % set_name)
         logging.debug("Adding set [%s[ to set group", set_name)
-        new_set = {}
-        for word in set_contents:
-            new_set[word.upper()] = word
-        self._sets[set_name] = new_set
+        self._sets[set_name] = the_set
 
     def set(self, name):
         # Set names always stored in upper case to handle ambiquity
@@ -70,7 +80,7 @@ class SetCollection(object):
     def contains(self, name):
         # Set names always stored in upper case to handle ambiquity
         set_name = name.upper()
-        return bool(set_name in self._sets.keys())
+        return bool(set_name in self._sets)
 
     def count_words_in_sets(self):
         count = 0
@@ -80,5 +90,8 @@ class SetCollection(object):
 
     def load(self, configuration):
         loader = SetLoader()
-        self._sets = loader.load_dir_contents(configuration.files, configuration.directories, configuration.extension)
+        if configuration.files is not None:
+            self._sets = loader.load_dir_contents(configuration.files, configuration.directories, configuration.extension)
+        else:
+            self._sets = {}
         return len(self._sets)

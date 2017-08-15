@@ -1,5 +1,5 @@
 """
-Copyright (c) 2016 Keith Sterling
+Copyright (c) 2016-17 Keith Sterling http://www.keithsterling.com
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation
@@ -51,15 +51,38 @@ class FileFinder(object):
 
         collection = {}
         for file in files:
-            if "." in file[0]:
-                filename = file[0].split(".")[0]
-            else:
-                filename = file[0]
-            filename = filename.upper()
-
+            just_filename = self.get_just_filename_from_filepath(file[0])
             try:
-                collection[filename] = self.load_file_contents(file[1])
+                collection[just_filename] = self.load_file_contents(file[1])
             except Exception as e:
+                logging.exception(e)
                 logging.error ("Failed to load file contents for file [%s]"%file[1])
 
         return collection
+
+    def load_single_file_contents(self, filename):
+        just_filename = self.get_just_filename_from_filepath(filename)
+
+        collection = {}
+        try:
+            collection[just_filename] = self.load_file_contents(filename)
+        except Exception as e:
+            logging.exception(e)
+            logging.error ("Failed to load file contents for file [%s]"%filename)
+
+        return collection
+
+    def get_just_filename_from_filepath(self, filepath):
+
+        last_slash = filepath.rfind(os.sep)
+        if last_slash == -1:
+            last_slash = 0
+
+        filename_ext = filepath[last_slash:]
+
+        last_dot = filename_ext.rfind(".")
+
+        filename = filename_ext[:last_dot]
+
+        return filename.upper()
+

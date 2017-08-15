@@ -1,11 +1,11 @@
 import unittest
 import os
 from test.aiml_tests.client import TestClient
-from programy.config.brain import BrainFileConfiguration
+from programy.config.sections.brain.file import BrainFileConfiguration
 
 """
-A set of scratch tests to provide a unit test framework for testing adhoc grammars
-Nothing in here should ever be taken as meaningful tests, they come and go like the wind
+A set of scratch aiml_tests to provide a unit test framework for testing adhoc grammars
+Nothing in here should ever be taken as meaningful aiml_tests, they come and go like the wind
 ( or my novel deadlines..... lol )
 """
 
@@ -16,7 +16,7 @@ class ScratchTestsClient(TestClient):
 
     def load_configuration(self, arguments):
         super(ScratchTestsClient, self).load_configuration(arguments)
-        self.configuration.brain_configuration._aiml_files = BrainFileConfiguration(os.path.dirname(__file__), ".aiml", False)
+        self.configuration.brain_configuration.files.aiml_files._files = os.path.dirname(__file__)
 
 class ScratchAIMLTests(unittest.TestCase):
 
@@ -24,19 +24,7 @@ class ScratchAIMLTests(unittest.TestCase):
         ScratchAIMLTests.test_client = ScratchTestsClient()
 
     def test_response(self):
-        response = ScratchAIMLTests.test_client.bot.ask_question("testif", "I AM MARRIED")
+        response = ScratchAIMLTests.test_client.bot.ask_question("testif", "SCRATCH TEST")
         self.assertIsNotNone(response)
-        self.assertEqual(response, 'HOW LONG HAVE YOU BEEN MARRIED')
+        self.assertEqual(response, 'OK')
 
-        response = ScratchAIMLTests.test_client.bot.ask_question("testif", "3 YEARS")
-        self.assertIsNotNone(response)
-        self.assertEqual(response, 'Congratulations!')
-
-    def test_response2(self):
-        response = ScratchAIMLTests.test_client.bot.ask_question("testif", "ZZZ")
-        self.assertIsNotNone(response)
-        self.assertEqual(response, 'ARE YOU TIRED?')
-
-        response = ScratchAIMLTests.test_client.bot.ask_question("testif", "YES")
-        self.assertIsNotNone(response)
-        self.assertEqual(response, 'Maybe you should get some rest. I will still be here later.')

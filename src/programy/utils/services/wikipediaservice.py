@@ -1,5 +1,5 @@
 """
-Copyright (c) 2016 Keith Sterling
+Copyright (c) 2016-17 Keith Sterling http://www.keithsterling.com
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation
@@ -17,7 +17,7 @@ import logging
 import wikipedia
 
 from programy.utils.services.service import Service
-from programy.config.brain import BrainServiceConfiguration
+from programy.config.sections.brain.service import BrainServiceConfiguration
 
 class WikipediaAPI(object):
 
@@ -30,33 +30,21 @@ class WikipediaService(Service):
         Service.__init__(self, config)
 
         if api is None:
-            self.api = WikipediaAPI()
+            self._api = WikipediaAPI()
         else:
-            self.api = api
+            self._api = api
 
     def ask_question(self, bot, clientid: str, question: str):
         try:
-            search = self.api.summary(question, sentences=1)
+            search = self._api.summary(question, sentences=1)
             return search
-        except wikipedia.exceptions.DisambiguationError:
+        except wikipedia.exceptions.DisambiguationError as e:
             logging.error("Wikipedia search is ambiguous for question [%s]", question)
             return ""
-        except wikipedia.exceptions.PageError:
+        except wikipedia.exceptions.PageError as e:
             logging.error("No page on Wikipedia for question [%s]", question)
             return ""
-        except Exception:
+        except Exception as e:
             logging.error("General error querying Wikipedia for question [%s]", question)
             return ""
 
-
-# Integration Test
-if __name__ == '__main__':
-
-    def run():
-        servce_config = BrainServiceConfiguration("WIKIPEDIA")
-
-        service = WikipediaService(servce_config)
-        service_response = service.ask_question(None, "testid", "keith sterling")
-        print(service_response)
-
-    run()

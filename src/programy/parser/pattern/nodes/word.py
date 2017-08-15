@@ -1,5 +1,5 @@
 """
-Copyright (c) 2016 Keith Sterling
+Copyright (c) 2016-17 Keith Sterling http://www.keithsterling.com
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation
@@ -18,7 +18,7 @@ import logging
 
 from programy.parser.exceptions import ParserException
 from programy.parser.pattern.nodes.base import PatternNode
-from programy.parser.pattern.nodes.root import PatternRootNode
+from programy.parser.pattern.matcher import EqualsMatch
 
 
 class PatternWordNode(PatternNode):
@@ -27,24 +27,26 @@ class PatternWordNode(PatternNode):
         PatternNode.__init__(self)
         self._word = word
 
+    def is_word(self):
+        return True
+
     @property
     def word(self):
         return self._word
 
     def can_add(self, new_node):
-        if isinstance(new_node, PatternRootNode):
+        if new_node.is_root():
             raise ParserException("Cannot add root node to child node")
 
     def equivalent(self, other):
-        if isinstance(other, PatternWordNode):
+        if other.is_word():
             if self._word == other.word:
                 return True
         return False
 
-    def equals(self, bot, clientid, word):
-        if self.word == word:
-            return True
-        return False
+    def equals(self, bot, clientid, words, word_no):
+        word = words.word(word_no)
+        return EqualsMatch(self.equals_ignore_case(bot, clientid, self._word, word), word_no, word)
 
     def to_string(self, verbose=True):
         if verbose is True:
