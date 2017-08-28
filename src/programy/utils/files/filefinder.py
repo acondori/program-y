@@ -43,7 +43,7 @@ class FileFinder(object):
                 for filename in [f for f in filenames if f.endswith(extension)]:
                     found_files.append((filename, os.path.join(dirpath, filename)))
 
-        return found_files
+        return sorted(found_files, key=lambda element: (element[1], element[0]))
 
     def load_dir_contents(self, path_to_sets, subdir=False, extension=".txt"):
 
@@ -56,7 +56,7 @@ class FileFinder(object):
                 collection[just_filename] = self.load_file_contents(file[1])
             except Exception as e:
                 logging.exception(e)
-                logging.error ("Failed to load file contents for file [%s]"%file[1])
+                if logging.getLogger().isEnabledFor(logging.ERROR): logging.error ("Failed to load file contents for file [%s]"%file[1])
 
         return collection
 
@@ -68,21 +68,23 @@ class FileFinder(object):
             collection[just_filename] = self.load_file_contents(filename)
         except Exception as e:
             logging.exception(e)
-            logging.error ("Failed to load file contents for file [%s]"%filename)
+            if logging.getLogger().isEnabledFor(logging.ERROR): logging.error ("Failed to load file contents for file [%s]"%filename)
 
         return collection
 
     def get_just_filename_from_filepath(self, filepath):
 
-        last_slash = filepath.rfind(os.sep)
-        if last_slash == -1:
-            last_slash = 0
+        if os.sep in filepath:
+            pathsplits = filepath.split(os.sep)
+            filename_ext = pathsplits[-1]
+        else:
+            filename_ext = filepath
 
-        filename_ext = filepath[last_slash:]
-
-        last_dot = filename_ext.rfind(".")
-
-        filename = filename_ext[:last_dot]
+        if "." in filename_ext:
+            filesplits = filename_ext.split(".")
+            filename = filesplits[0]
+        else:
+            filename = filename_ext
 
         return filename.upper()
 

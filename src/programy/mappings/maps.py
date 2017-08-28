@@ -23,14 +23,14 @@ class MapLoader(FileFinder):
         FileFinder.__init__(self)
 
     def load_file_contents(self, filename):
-        logging.debug("Loading map [%s]", filename)
+        if logging.getLogger().isEnabledFor(logging.DEBUG): logging.debug("Loading map [%s]", filename)
         the_map = {}
         try:
             with open(filename, 'r', encoding='utf8') as my_file:
                 for line in my_file:
                     self.process_line(line, the_map)
         except Exception as excep:
-            logging.error("Failed to load map [%s] - %s", filename, excep)
+            if logging.getLogger().isEnabledFor(logging.ERROR): logging.error("Failed to load map [%s] - %s", filename, excep)
         return the_map
 
     def load_from_text(self, text):
@@ -56,6 +56,9 @@ class MapCollection(object):
     def map(self, name):
         map_name = name.upper()
         return self._maps[map_name]
+
+    def add_map(self, name, values):
+        self._maps[name.upper()] = values
 
     def contains(self, name):
         map_name = name.upper()

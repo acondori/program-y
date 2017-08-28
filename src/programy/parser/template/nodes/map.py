@@ -16,10 +16,6 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR TH
 
 import logging
 
-from programy.parser.template.maps.plural import PluralMap
-from programy.parser.template.maps.singular import SingularMap
-from programy.parser.template.maps.predecessor import PredecessorMap
-from programy.parser.template.maps.successor import SuccessorMap
 from programy.parser.template.nodes.base import TemplateNode
 from programy.parser.exceptions import ParserException
 from programy.utils.text.text import TextUtils
@@ -29,10 +25,6 @@ class TemplateMapNode(TemplateNode):
     def __init__(self):
         TemplateNode.__init__(self)
         self._name = None
-        self._internal_maps = {PluralMap.get_name(): PluralMap(),
-                               SingularMap.get_name(): SingularMap(),
-                               PredecessorMap.get_name(): PredecessorMap(),
-                               SuccessorMap.get_name(): SuccessorMap()}
 
     @property
     def name(self):
@@ -51,8 +43,10 @@ class TemplateMapNode(TemplateNode):
     def get_default_value(self, bot):
         value = bot.brain.properties.property("default-map")
         if value is None:
-            logging.error("No value for default-map defined, empty string returned")
-            value = ""
+            value = bot.brain.properties.property("default-map")
+            if value is None:
+                if logging.getLogger().isEnabledFor(logging.ERROR): logging.error("No value for default-map defined, empty string returned")
+                value = ""
         return value
 
     def resolve(self, bot, clientid):
@@ -60,22 +54,21 @@ class TemplateMapNode(TemplateNode):
             name = self.name.resolve(bot, clientid).upper()
             var = self.resolve_children(bot, clientid).upper()
 
-            if name in self._internal_maps:
-                map = self._internal_maps[name]
-                value = map.map(var)
+            if bot.brain.dynamics.is_dynamic_map(name) is True:
+                value = bot.brain.dynamics.dynamic_map(bot, clientid, name, var)
             else:
                 if bot.brain.maps.contains(name) is False:
-                    logging.error("No map defined for [%s], using default-map as value" % var)
+                    if logging.getLogger().isEnabledFor(logging.ERROR): logging.error("No map defined for [%s], using default-map as value" % var)
                     value = self.get_default_value(bot)
                 else:
                     the_map = bot.brain.maps.map(name)
                     if var in the_map:
                         value = the_map[var]
                     else:
-                        logging.error("No value defined for [%s], using default-map as value" % var)
+                        if logging.getLogger().isEnabledFor(logging.ERROR): logging.error("No value defined for [%s], using default-map as value" % var)
                         value = self.get_default_value(bot)
 
-            logging.debug("MAP [%s] resolved to [%s] = [%s]", self.to_string(), name, value)
+            if logging.getLogger().isEnabledFor(logging.DEBUG): logging.debug("MAP [%s] resolved to [%s] = [%s]", self.to_string(), name, value)
             return value
         except Exception as excep:
             logging.exception(excep)

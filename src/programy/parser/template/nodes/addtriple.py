@@ -20,15 +20,18 @@ from programy.parser.template.nodes.triple import TemplateTripleNode
 
 class TemplateAddTripleNode(TemplateTripleNode):
 
-    def __init__(self):
-        TemplateTripleNode.__init__(self)
-        self._node_name = "addtriple"
+    def __init__(self, entity=None):
+        TemplateTripleNode.__init__(self, node_name="addtriple", entity=entity)
 
     def resolve(self, bot, clientid):
         try:
-            bot.brain.triples.add_triple(self.subject, self._predicate, self.objective)
+            subject = self.entity.subject.resolve(bot, clientid)
+            predicate = self.entity.predicate.resolve(bot, clientid)
+            object = self.entity.object.resolve(bot, clientid)
+
+            bot.brain.rdf.add_entity(subject, predicate, object)
             resolved = ""
-            logging.debug("[%s] resolved to [%s]", self.to_string(), resolved)
+            if logging.getLogger().isEnabledFor(logging.DEBUG): logging.debug("[%s] resolved to [%s]", self.to_string(), resolved)
             return resolved
         except Exception as excep:
             logging.exception(excep)
@@ -47,5 +50,5 @@ class TemplateAddTripleNode(TemplateTripleNode):
     # ADDTRIPLE_EXPRESSION ::== <addtriple>TEMPLATE_EXPRESSION</addtriple>
 
     def parse_expression(self, graph, expression):
-        super(TemplateAddTripleNode, self).parse_expression(self, graph, expression)
+        super(TemplateAddTripleNode, self).parse_expression(graph, expression)
 

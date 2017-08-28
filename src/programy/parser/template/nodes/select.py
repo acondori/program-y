@@ -15,20 +15,38 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR TH
 """
 
 import logging
+import pickle
+import json
 
 from programy.parser.template.nodes.base import TemplateNode
-
+from programy.parser.exceptions import ParserException
+from programy.utils.text.text import TextUtils
+from programy.rdf.select import RDFSelectStatement
+from programy.rdf.query import RDFQuery
 
 class TemplateSelectNode(TemplateNode):
 
-    def __init__(self):
+    def __init__(self, query=None):
         TemplateNode.__init__(self)
+        if query is None:
+            self._query = RDFSelectStatement()
+        else:
+            self._query = query
+
+
+    @property
+    def query(self):
+        return self._query
+
+    def encode_tuples(self, bot, tuples):
+        return json.dumps(tuples)
+        #return pickle._dumps(tuples)
 
     def resolve(self, bot, clientid):
         try:
-            string = self.resolve_children_to_string(bot, clientid)
-            resolved = "SELECT"
-            logging.debug("[%s] resolved to [%s]", self.to_string(), resolved)
+            results = self.query.execute(bot, clientid)
+            resolved = json.dumps(results)
+            if logging.getLogger().isEnabledFor(logging.DEBUG): logging.debug("[%s] resolved to [%s]", self.to_string(), resolved)
             return resolved
         except Exception as excep:
             logging.exception(excep)
@@ -39,17 +57,64 @@ class TemplateSelectNode(TemplateNode):
 
     def to_xml(self, bot, clientid):
         xml = "<select>"
-        xml += self.children_to_xml(bot, clientid)
+        xml += self.query.to_xml(bot, clientid)
         xml += "</select>"
         return xml
 
     #######################################################################################################
     # SELECT_EXPRESSION ::== <person>TEMPLATE_EXPRESSION</person>
 
-    def add_default_star(self):
-        return True
+    def parse_vars(self, vars):
+        var_splits = vars.split(" ")
+        for var_name in var_splits:
+            self._query._vars.append(var_name)
+
+    def parse_query(self, graph, query_name, query):
+
+        if query_name == "q":
+            query_type = RDFQuery.QUERY
+        else:
+            query_type = RDFQuery.NOT_QUERY
+
+        for child in query:
+            tag_name = TextUtils.tag_from_text(child.tag)
+
+            if tag_name == 'subj':
+                subj = self.parse_children_as_word_node(graph, child)
+            elif tag_name == 'pred':
+                pred = self.parse_children_as_word_node(graph, child)
+            elif tag_name == 'obj':
+                obj = self.parse_children_as_word_node(graph, child)
+            else:
+                if logging.getLogger().isEnabledFor(logging.WARNING): logging.warning ("Unknown tag name [%s] in select query"%tag_name)
+
+        if subj is None:
+            raise ParserException("<subj> element missing from select query")
+
+        if pred is None:
+            raise ParserException("<pred> element missing from select query")
+
+        if obj is None:
+            raise ParserException("<obj> element missing from select query")
+
+        self._query._queries.append(RDFQuery(subj, pred, obj, query_type))
 
     def parse_expression(self, graph, expression):
-        self._parse_node(graph, expression)
+
+        vars = expression.findall('vars')
+
+        if len(vars) > 0:
+            if len(vars) > 1:
+                if logging.getLogger().isEnabledFor(logging.WARNING): logging.warning ("Multiple <vars> found in select tag, using first")
+            self.parse_vars(vars[0].text)
+
+        queries = expression.findall('./')
+        for query in queries:
+            tag_name = TextUtils.tag_from_text(query.tag)
+            if tag_name == 'q' or tag_name == 'notq':
+                self.parse_query(graph, tag_name, query)
+
+        if len(self.children) > 0:
+            raise ParserException("<select> node should not contains child text, use <select><vars></vars><q></q></select> only")
 
 

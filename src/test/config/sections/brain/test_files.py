@@ -16,8 +16,8 @@ class BrainFilesConfigurationTests(unittest.TestCase):
                     files: $BOT_ROOT/aiml
                     extension: .aiml
                     directories: true
-                    errors: $BOT_ROOT/output/y-bot_errors.txt
-                    duplicates: $BOT_ROOT/output/y-bot_duplicates.txt
+                    errors: /tmp/y-bot_errors.txt
+                    duplicates: /tmp/y-bot_duplicates.txt
                 sets:
                     files: $BOT_ROOT/sets
                     extension: .txt
@@ -31,8 +31,6 @@ class BrainFilesConfigurationTests(unittest.TestCase):
                 gender: $BOT_ROOT/config/gender.txt
                 person: $BOT_ROOT/config/person.txt
                 person2: $BOT_ROOT/config/person2.txt
-                predicates: $BOT_ROOT/config/predicates.txt
-                pronouns: $BOT_ROOT/config/pronouns.txt
                 properties: $BOT_ROOT/config/properties.txt
                 triples: $BOT_ROOT/config/triples.txt
                 preprocessors: $BOT_ROOT/config/preprocessors.conf
@@ -48,8 +46,8 @@ class BrainFilesConfigurationTests(unittest.TestCase):
         self.assertEqual("./aiml", files_config.aiml_files.files)
         self.assertEqual(".aiml", files_config.aiml_files.extension)
         self.assertTrue(files_config.aiml_files.directories)
-        self.assertEqual("./output/y-bot_errors.txt", files_config.aiml_files.errors)
-        self.assertEqual("./output/y-bot_duplicates.txt", files_config.aiml_files.duplicates)
+        self.assertEqual("/tmp/y-bot_errors.txt", files_config.aiml_files.errors)
+        self.assertEqual("/tmp/y-bot_duplicates.txt", files_config.aiml_files.duplicates)
 
         self.assertIsNotNone(files_config.set_files)
         self.assertEqual("./sets", files_config.set_files.files)
@@ -66,8 +64,6 @@ class BrainFilesConfigurationTests(unittest.TestCase):
         self.assertEqual(files_config.gender, "./config/gender.txt")
         self.assertEqual(files_config.person, "./config/person.txt")
         self.assertEqual(files_config.person2, "./config/person2.txt")
-        self.assertEqual(files_config.predicates, "./config/predicates.txt")
-        self.assertEqual(files_config.pronouns, "./config/pronouns.txt")
         self.assertEqual(files_config.properties, "./config/properties.txt")
         self.assertEqual(files_config.triples, "./config/triples.txt")
         self.assertEqual(files_config.preprocessors, "./config/preprocessors.conf")

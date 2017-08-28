@@ -15,6 +15,7 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR TH
 """
 
 import logging
+from urllib.parse import urlencode
 
 from programy.parser.template.nodes.base import TemplateNode
 
@@ -27,8 +28,10 @@ class TemplateSearchNode(TemplateNode):
     def resolve(self, bot, clientid):
         try:
             string = self.resolve_children_to_string(bot, clientid)
-            resolved = "SEARCH"
-            logging.debug("[%s] resolved to [%s]", self.to_string(), resolved)
+            query = {'q': string}
+            encoded = urlencode(query)
+            resolved = "https://www.google.co.uk/search?" + encoded
+            if logging.getLogger().isEnabledFor(logging.DEBUG): logging.debug("[%s] resolved to [%s]", self.to_string(), resolved)
             return resolved
         except Exception as excep:
             logging.exception(excep)
