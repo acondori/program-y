@@ -27,7 +27,7 @@ class TemplateEvalNode(TemplateNode):
     def resolve(self, bot, clientid):
         try:
             resolved = self.resolve_children_to_string(bot, clientid)
-            logging.debug("[%s] resolved to [%s]", self.to_string(), resolved)
+            if logging.getLogger().isEnabledFor(logging.DEBUG): logging.debug("[%s] resolved to [%s]", self.to_string(), resolved)
             return resolved
         except Exception as excep:
             logging.exception(excep)
@@ -45,23 +45,6 @@ class TemplateEvalNode(TemplateNode):
     #######################################################################################################
     # EVAL_EXPRESSION ::== <eval>TEMPLATE_EXPRESSION</eval>
     #
-    # LEARN_PATTERN_EXPRESSION ::== PATTERN_EXPRESSION | EVAL_EXPRESSION
-    # LEARN_PATTERN_EXPRESSION ::== (LEARN_PATTERN_EXPRESSION)+
-    #
-    # LEARN_TEMPLATE_EXPRESSION ::== TEXT | TAG_EXPRESSION | EVAL_EXPRESSION
-    #
-    # LEARN_TEMPLATE_EXPRESSION ::== (LEARN_TEMPLATE_EXPRESSION)*
-    #
-    # LEARN_CATEGORY_EXPRESSION ::==
-    # 						<category>
-    # 							<pattern>LEARN_PATTERN_EXPRESSION</pattern>
-    # 							(<that>LEARN_PATTERN_EXPRESSION</that>)
-    # 							(<topic>LEARN_PATTERN_EXPRESSION</topic>)
-    # 							<template>LEARN_TEMPLATE_EXPRESSION</template>
-    # 						</category>
-    #
-    # LEARN_EXPRESSION ::== 	<learn>LEARN_CATEGORY_EXPRESSION</learn> |
-    # 						<learnf>LEARN_CATEGORY_EXPRESSION</learnf>
 
     def parse_expression(self, graph, expression):
 

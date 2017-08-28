@@ -135,17 +135,17 @@ class TemplateConditionNode(TemplateNode):
                 return child
         return None
 
-    def _get_predicate_value(self, bot, clientid, name, local):
+    def _get_property_value(self, bot, clientid, name, local):
 
         if local is False:
-            value = bot.conversation(clientid).predicate(name)
+            value = bot.conversation(clientid).property(name)
         else:
-            value = bot.conversation(clientid).current_question().predicate(name)
+            value = bot.conversation(clientid).current_question().property(name)
 
         if value is None:
             value = bot.brain.properties.property("default-get")
             if value is None:
-                logging.error("No value for default-get defined, empty string returned")
+                if logging.getLogger().isEnabledFor(logging.ERROR): logging.error("No value for default-get defined, empty string returned")
                 value = ""
         return value
 
@@ -206,15 +206,15 @@ class TemplateConditionNode(TemplateNode):
                 return value_node
 
     # Type 1
-    # <condition name="predicate" value="v">X</condition>,
-    # <condition name="predicate"><value>v</value>X</condition>,
-    # <condition value="v"><name>predicate</name>X</condition>, and
-    # <condition><name>predicate</name><value>v</value>X</condition>
+    # <condition name="property" value="v">X</condition>,
+    # <condition name="property"><value>v</value>X</condition>,
+    # <condition value="v"><name>property</name>X</condition>, and
+    # <condition><name>property</name><value>v</value>X</condition>
     #
 
     # Type 2
-    # <condition name="predicate">...</condition>
-    # <condition><name>predicate</name>...</condition>
+    # <condition name="property">...</condition>
+    # <condition><name>property</name>...</condition>
     # 	<li value="a">X</li>
     # 	<li value="b">Y</li>
     # 	<li>Z</li>				<- Default value if no condition met
@@ -415,7 +415,7 @@ class TemplateConditionNode(TemplateNode):
 
     def resolve_type1_condition(self, bot, clientid):
         try:
-            value = self._get_predicate_value(bot, clientid, self.name, self.local)
+            value = self._get_property_value(bot, clientid, self.name, self.local)
 
             # Condition comparison is always case insensetive
             if value.upper() == self.value.resolve(bot, clientid).upper():
@@ -423,7 +423,7 @@ class TemplateConditionNode(TemplateNode):
             else:
                 resolved = ""
 
-            logging.debug("[%s] resolved to [%s]", self.to_string(), resolved)
+            if logging.getLogger().isEnabledFor(logging.DEBUG): logging.debug("[%s] resolved to [%s]", self.to_string(), resolved)
             return resolved
         except Exception as excep:
             logging.exception(excep)
@@ -431,7 +431,7 @@ class TemplateConditionNode(TemplateNode):
 
     def resolve_type2_condition(self, bot, clientid):
         try:
-            value = self._get_predicate_value(bot, clientid, self.name, self.local)
+            value = self._get_property_value(bot, clientid, self.name, self.local)
 
             for condition in self.children:
                 if condition.is_default() is False:
@@ -440,7 +440,7 @@ class TemplateConditionNode(TemplateNode):
                     # Condition comparison is always case insensetive
                     if value.upper() == condition_value.upper():
                         resolved = " ".join([child_node.resolve(bot, clientid) for child_node in condition.children])
-                        logging.debug("[%s] resolved to [%s]", self.to_string(), resolved)
+                        if logging.getLogger().isEnabledFor(logging.DEBUG): logging.debug("[%s] resolved to [%s]", self.to_string(), resolved)
 
                         if condition.loop is True:
                             resolved = resolved.strip() + " " + self.resolve(bot, clientid)
@@ -456,7 +456,7 @@ class TemplateConditionNode(TemplateNode):
             else:
                 resolved = ""
 
-            logging.debug("[%s] resolved to [%s]", self.to_string(), resolved)
+            if logging.getLogger().isEnabledFor(logging.DEBUG): logging.debug("[%s] resolved to [%s]", self.to_string(), resolved)
             return resolved
 
         except Exception as excep:
@@ -466,14 +466,14 @@ class TemplateConditionNode(TemplateNode):
     def resolve_type3_condition(self, bot, clientid):
         try:
             for condition in self.children:
-                value = self._get_predicate_value(bot, clientid, condition.name, condition.local)
+                value = self._get_property_value(bot, clientid, condition.name, condition.local)
                 if condition.value is not None:
                     condition_value = condition.value.resolve(bot, clientid)
 
                     # Condition comparison is always case insensetive
                     if value.upper() == condition_value.upper():
                         resolved = " ".join([child_node.resolve(bot, clientid) for child_node in condition.children])
-                        logging.debug("[%s] resolved to [%s]", self.to_string(), resolved)
+                        if logging.getLogger().isEnabledFor(logging.DEBUG): logging.debug("[%s] resolved to [%s]", self.to_string(), resolved)
 
                         if condition.loop is True:
                             resolved = resolved.strip() + " " + self.resolve(bot, clientid).strip()
@@ -490,7 +490,7 @@ class TemplateConditionNode(TemplateNode):
             else:
                 resolved = ""
 
-            logging.debug("[%s] resolved to [%s]", self.to_string(), resolved)
+            if logging.getLogger().isEnabledFor(logging.DEBUG): logging.debug("[%s] resolved to [%s]", self.to_string(), resolved)
             return resolved
 
         except Exception as excep:

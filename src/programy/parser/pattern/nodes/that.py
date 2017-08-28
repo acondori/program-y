@@ -51,16 +51,19 @@ class PatternThatNode(PatternNode):
 
     def consume(self, bot, clientid, context, words, word_no, type, depth):
 
-        tabs = TextUtils.get_tabs(depth)
+        if bot.configuration.tab_parse_output is True:
+            tabs = TextUtils.get_tabs(depth)
+        else:
+            tabs = ""
 
         if context.search_depth_exceeded(depth) is True:
         # if depth > context.max_search_depth:
-            logging.error("%sMax search depth [%d]exceeded" % (tabs, context.max_search_depth))
+            if logging.getLogger().isEnabledFor(logging.ERROR): logging.error("%sMax search depth [%d]exceeded" % (tabs, context.max_search_depth))
             return None
 
         if words.word(word_no) == PatternThatNode.THAT:
-            logging.debug("%sThat matched %s" % (tabs, words.word(word_no)))
+            if logging.getLogger().isEnabledFor(logging.DEBUG): logging.debug("%sThat matched %s" % (tabs, words.word(word_no)))
             return super(PatternThatNode, self).consume(bot, clientid, context, words, word_no + 1, type, depth+1)
 
-        logging.debug("%sTHAT NOT matched %s" % (tabs, words.word(word_no)))
+        if logging.getLogger().isEnabledFor(logging.DEBUG): logging.debug("%sTHAT NOT matched %s" % (tabs, words.word(word_no)))
         return None

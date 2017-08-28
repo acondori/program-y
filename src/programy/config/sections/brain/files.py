@@ -27,14 +27,13 @@ class BrainFilesConfiguration(BaseConfigurationData):
         self._aiml_files        = BrainAIMLFileConfiguration()
         self._set_files         = BrainFileConfiguration("sets")
         self._map_files         = BrainFileConfiguration("maps")
+        self._rdf_files         = BrainFileConfiguration("rdf")
 
         self._denormal          = None
         self._normal            = None
         self._gender            = None
         self._person            = None
         self._person2           = None
-        self._predicates        = None
-        self._pronouns          = None
         self._properties        = None
         self._triples           = None
         self._preprocessors     = None
@@ -73,16 +72,12 @@ class BrainFilesConfiguration(BaseConfigurationData):
         return self._person2
 
     @property
-    def predicates(self):
-        return self._predicates
-
-    @property
-    def pronouns(self):
-        return self._pronouns
-
-    @property
     def properties(self):
         return self._properties
+
+    @property
+    def rdf_files(self):
+        return self._rdf_files
 
     @property
     def triples(self):
@@ -102,17 +97,16 @@ class BrainFilesConfiguration(BaseConfigurationData):
             self._aiml_files.load_config_section(config_file, files_config, bot_root)
             self._set_files.load_config_section(config_file, files_config, bot_root)
             self._map_files.load_config_section(config_file, files_config, bot_root)
+            self._rdf_files.load_config_section(config_file, files_config, bot_root)
 
             self._denormal = self._get_file_option(config_file, "denormal", files_config, bot_root)
             self._normal = self._get_file_option(config_file, "normal", files_config, bot_root)
             self._gender = self._get_file_option(config_file, "gender", files_config, bot_root)
             self._person = self._get_file_option(config_file, "person", files_config, bot_root)
             self._person2 = self._get_file_option(config_file, "person2", files_config, bot_root)
-            self._predicates = self._get_file_option(config_file, "predicates", files_config, bot_root)
-            self._pronouns = self._get_file_option(config_file, "pronouns", files_config, bot_root)
             self._properties = self._get_file_option(config_file, "properties", files_config, bot_root)
             self._triples = self._get_file_option(config_file, "triples", files_config, bot_root)
             self._preprocessors = self._get_file_option(config_file, "preprocessors", files_config, bot_root)
             self._postprocessors = self._get_file_option(config_file, "postprocessors", files_config, bot_root)
         else:
-            logging.error("Config section [files] missing from Brain, default values not appropriate")
+            if logging.getLogger().isEnabledFor(logging.ERROR): logging.error("Config section [files] missing from Brain, default values not appropriate")

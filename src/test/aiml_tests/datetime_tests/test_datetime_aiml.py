@@ -28,6 +28,7 @@ class DateTimeAIMLTests(unittest.TestCase):
 
     def setUp(self):
         DateTimeAIMLTests.test_client = BasicTestClient()
+        DateTimeAIMLTests.test_client.bot.brain.dynamics.add_dynamic_set('number', "programy.dynamic.sets.numeric.IsNumeric", None)
         self.date = DateFormatter()
 
     def test_season(self):

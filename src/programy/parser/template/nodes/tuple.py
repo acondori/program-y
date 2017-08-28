@@ -19,15 +19,28 @@ import logging
 from programy.parser.template.nodes.base import TemplateNode
 
 
+# Converts the data into a name, value pairs, typically then user by get="?x"
+# Expects a string of the format ('?x', 'BIRD'), (None, 'legs'), (None, '2')
 class TemplateTupleNode(TemplateNode):
 
     def __init__(self):
         TemplateNode.__init__(self)
+        self._pairs = {}
+
+    @property
+    def pairs(self):
+        return self._pairs
+
+    def get(self, name):
+        if name in self._pairs:
+            return self._pairs[name]
+        else:
+            return None
 
     def resolve(self, bot, clientid):
         try:
             resolved = self.resolve_children_to_string(bot, clientid)
-            logging.debug("[%s] resolved to [%s]", self.to_string(), resolved)
+            if logging.getLogger().isEnabledFor(logging.DEBUG): logging.debug("[%s] resolved to [%s]", self.to_string(), resolved)
             return resolved
         except Exception as excep:
             logging.exception(excep)
@@ -44,9 +57,6 @@ class TemplateTupleNode(TemplateNode):
 
     #######################################################################################################
     # <tuple>ABC</tuple>
-
-    def add_default_star(self):
-        return True
 
     def parse_expression(self, graph, expression):
         self._parse_node(graph, expression)

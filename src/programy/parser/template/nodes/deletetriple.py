@@ -21,15 +21,18 @@ from programy.parser.template.nodes.triple import TemplateTripleNode
 
 class TemplateDeleteTripleNode(TemplateTripleNode):
 
-    def __init__(self):
-        TemplateTripleNode.__init__(self)
-        self._node_name = "deletetriple"
+    def __init__(self, entity=None):
+        TemplateTripleNode.__init__(self, node_name="deletetriple", entity=entity)
 
     def resolve(self, bot, clientid):
         try:
+            subject = self.entity.subject.resolve(bot, clientid)
+            predicate = self.entity.predicate.resolve(bot, clientid)
+            object = self.entity.object.resolve(bot, clientid)
+
             resolved = ""
-            bot.brain.triples.delete_triple(self.subject, self._predicate, self.objective)
-            logging.debug("[%s] resolved to [%s]", self.to_string(), resolved)
+            bot.brain.rdf.delete_entity(subject, predicate, object)
+            if logging.getLogger().isEnabledFor(logging.DEBUG): logging.debug("[%s] resolved to [%s]", self.to_string(), resolved)
             return resolved
         except Exception as excep:
             logging.exception(excep)
@@ -48,6 +51,6 @@ class TemplateDeleteTripleNode(TemplateTripleNode):
     # DELETETRIPLE_EXPRESSION ::== <deletetriple>TEMPLATE_EXPRESSION</deletetriple>
 
     def parse_expression(self, graph, expression):
-        super(TemplateDeleteTripleNode, self).parse_expression(self, graph, expression)
+        super(TemplateDeleteTripleNode, self).parse_expression(graph, expression)
 
 

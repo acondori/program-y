@@ -15,7 +15,7 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR TH
 """
 
 import logging
-
+import os
 from programy.config.base import BaseConfigurationData
 
 
@@ -26,7 +26,10 @@ class BrainDefaultsConfiguration(BaseConfigurationData):
         self._default_get = "unknown"
         self._default_property = "unknown"
         self._default_map = "unknown"
-        self._learn_filename = "learnf.aiml"
+        if os.name == 'posix':
+            self._learn_filename = '/tmp/learnf.aiml'
+        elif os.name == 'nt':
+            self._learn_filename = 'C:\Windows\Temp\leanf.aiml'
 
     @property
     def default_get(self):
@@ -54,4 +57,4 @@ class BrainDefaultsConfiguration(BaseConfigurationData):
             if learn_filename is not None:
                 self._learn_filename = self.sub_bot_root(learn_filename, bot_root)
         else:
-            logging.warning("'spelling' section missing from bot config, using to defaults")
+            if logging.getLogger().isEnabledFor(logging.WARNING): logging.warning("'spelling' section missing from bot config, using to defaults")
